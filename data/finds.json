@@ -1,20 +1,3 @@
 {
-  "finds": [
-    {
-      "id": "f_mqsedebp_shllem",
-      "inventoryId": "TR-001",
-      "createdAt": "2026-06-24T18:19:03.493Z",
-      "photoPath": "data/images/f_mqsedebp_shllem.jpg",
-      "name": "test",
-      "type": "piece",
-      "matiere": "Pierre",
-      "date": "2026-06-05",
-      "epoque": "Antiquité gauloise",
-      "lieu": "test",
-      "notes": "test",
-      "lat": 49.50367019573994,
-      "lng": 1.0474348068237307,
-      "updatedAt": "2026-06-24T18:19:03.493Z"
-    }
-  ]
+  "finds": []
 }
