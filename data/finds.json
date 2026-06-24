@@ -1,3 +1,18 @@
 {
-  "finds": []
+  "finds": [
+    {
+      "id": "f_mqrp560u_4heyx9",
+      "inventoryId": "TR-001",
+      "createdAt": "2026-06-24T06:32:49.086Z",
+      "photoPath": "data/images/f_mqrp560u_4heyx9.jpg",
+      "name": "Test",
+      "type": "autre",
+      "matiere": "Test",
+      "date": "2026-06-10",
+      "epoque": "1900",
+      "lieu": "Test",
+      "notes": "Test",
+      "updatedAt": "2026-06-24T06:32:49.086Z"
+    }
+  ]
 }
