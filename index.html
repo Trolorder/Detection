@@ -1178,8 +1178,23 @@ const SITE_CONFIG = {
   async function saveFinds(message) {
     const payload = { finds: state.finds };
     const contentB64 = utf8ToB64(JSON.stringify(payload, null, 2));
-    const res = await ghPutFile(FINDS_PATH, contentB64, state.findsSha, message || 'update: registre de trouvailles');
-    state.findsSha = res.content.sha;
+    try {
+      const res = await ghPutFile(FINDS_PATH, contentB64, state.findsSha, message || 'update: registre de trouvailles');
+      state.findsSha = res.content.sha;
+    } catch (e) {
+      // If GitHub rejects for a missing/stale sha (422 "sha wasn't supplied",
+      // or 409 conflict), re-fetch the real sha and retry once. This covers
+      // both a stale local cache and brief read-after-write propagation lag
+      // on GitHub's API right after the vault/registry was just created.
+      if (/422|409/.test(e.message)) {
+        const fresh = await ghGetFile(FINDS_PATH);
+        state.findsSha = fresh ? fresh.sha : null;
+        const res = await ghPutFile(FINDS_PATH, contentB64, state.findsSha, message || 'update: registre de trouvailles');
+        state.findsSha = res.content.sha;
+      } else {
+        throw e;
+      }
+    }
   }
 
   function nextInventoryNumber() {
@@ -1985,7 +2000,6 @@ const SITE_CONFIG = {
 
     try {
       await setupVault(token, pw);
-      await loadFinds();
       hideLock();
       toast('Coffre créé avec succès.', 'success');
       enterApp();
