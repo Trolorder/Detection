@@ -1,6 +1,20 @@
 {
   "finds": [
     {
+      "id": "f_mqrp65d4_mgae6y",
+      "inventoryId": "TR-002",
+      "createdAt": "2026-06-24T06:33:34.888Z",
+      "photoPath": "data/images/f_mqrp65d4_mgae6y.jpg",
+      "name": "Test",
+      "type": "piece",
+      "matiere": "Or",
+      "date": "2026-06-25",
+      "epoque": "Test",
+      "lieu": "Testt",
+      "notes": "Test",
+      "updatedAt": "2026-06-24T06:33:34.889Z"
+    },
+    {
       "id": "f_mqrp560u_4heyx9",
       "inventoryId": "TR-001",
       "createdAt": "2026-06-24T06:32:49.086Z",
