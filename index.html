@@ -68,6 +68,12 @@ body{
 
 a{ color: var(--brass-lt); text-decoration: none; }
 
+.link-btn{
+  background:none; border:none; padding:0; margin:0; font: inherit;
+  color: var(--brass-lt); text-decoration: underline; cursor: pointer;
+}
+.link-btn:hover{ color: var(--brass); }
+
 button{
   font-family: var(--font-body);
   cursor: pointer;
@@ -927,6 +933,21 @@ footer.app-footer{
           <p style="font-size:13px;">Aucune trouvaille n'a de position GPS enregistrée pour le moment.<br>Utilise le bouton "Carte" dans une fiche pour en ajouter.</p>
         </div>
         <div id="globalLeafletMap" style="height:65vh; min-height:340px; border-radius:4px; border:1px solid var(--line);"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== MODAL: SINGLE FIND MAP (stacked over detail) ===================== -->
+  <div class="modal-overlay" id="findMapModalOverlay" style="z-index:180;">
+    <div class="modal" style="max-width:680px;">
+      <div class="modal-header">
+        <h3 id="findMapModalTitle">Position de la trouvaille</h3>
+        <button class="modal-close" id="findMapModalClose">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="modal-body" style="padding:16px;">
+        <div id="findLeafletMap" style="height:50vh; min-height:300px; border-radius:4px; border:1px solid var(--line);"></div>
       </div>
     </div>
   </div>
@@ -2017,6 +2038,50 @@ const SITE_CONFIG = {
   }
 
   // ---------------------------------------------------------
+  // SINGLE FIND MAP (opened from the detail view, stacks on top of it)
+  // ---------------------------------------------------------
+  let findMap = {
+    map: null,
+    initialized: false,
+    marker: null,
+  };
+
+  function initFindMapOnce() {
+    if (findMap.initialized) return;
+    findMap.map = L.map('findLeafletMap', { attributionControl: true }).setView(DEFAULT_MAP_CENTER, DEFAULT_MAP_ZOOM);
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">contributeurs OpenStreetMap</a>'
+    }).addTo(findMap.map);
+    findMap.initialized = true;
+  }
+
+  function openFindMapModal(f) {
+    if (f.lat == null || f.lng == null) return;
+    $('findMapModalTitle').textContent = `Position — ${f.inventoryId || f.name}`;
+    $('findMapModalOverlay').classList.add('show');
+
+    setTimeout(() => {
+      initFindMapOnce();
+      findMap.map.invalidateSize();
+      findMap.map.setView([f.lat, f.lng], 16);
+      if (findMap.marker) findMap.map.removeLayer(findMap.marker);
+      findMap.marker = L.marker([f.lat, f.lng]).addTo(findMap.map);
+      const typeLabel = TYPE_LABELS[f.type] || f.type;
+      findMap.marker.bindPopup(`
+        <div style="font-family: var(--font-body); min-width:140px;">
+          <div style="font-weight:600; font-size:13.5px; margin-bottom:4px;">${escapeHtml(f.name)}</div>
+          <div style="font-size:12px; color:#888;">${typeLabel}${f.date ? ' · ' + fmtDate(f.date) : ''}</div>
+        </div>
+      `).openPopup();
+    }, 80);
+  }
+
+  function closeFindMapModal() {
+    $('findMapModalOverlay').classList.remove('show');
+  }
+
+  // ---------------------------------------------------------
   // DETAIL MODAL
   // ---------------------------------------------------------
   function openDetailModal(findId) {
@@ -2037,11 +2102,16 @@ const SITE_CONFIG = {
         <div class="detail-item"><dt>Matière</dt><dd>${escapeHtml(f.matiere) || '—'}</dd></div>
         <div class="detail-item"><dt>Date de découverte</dt><dd>${fmtDate(f.date)}</dd></div>
         <div class="detail-item"><dt>Époque</dt><dd>${escapeHtml(f.epoque) || '—'}</dd></div>
-        <div class="detail-item span-2" style="grid-column:1/-1;"><dt>Lieu</dt><dd>${escapeHtml(f.lieu) || '—'}${(f.lat != null && f.lng != null) ? ` · <a href="https://www.openstreetmap.org/?mlat=${f.lat}&mlon=${f.lng}#map=16/${f.lat}/${f.lng}" target="_blank" rel="noopener">voir sur la carte ↗</a>` : ''}</dd></div>
+        <div class="detail-item span-2" style="grid-column:1/-1;"><dt>Lieu</dt><dd>${escapeHtml(f.lieu) || '—'}${(f.lat != null && f.lng != null) ? ` · <button type="button" class="link-btn" data-show-find-map="${f.id}">voir sur la carte ↗</button>` : ''}</dd></div>
         ${f.notes ? `<div class="detail-item" style="grid-column:1/-1;"><dt>Notes</dt><dd>${escapeHtml(f.notes)}</dd></div>` : ''}
       </dl>
     `;
     $('detailModalOverlay').classList.add('show');
+
+    const showMapBtn = $('detailModalBody').querySelector('[data-show-find-map]');
+    if (showMapBtn) {
+      showMapBtn.addEventListener('click', () => openFindMapModal(f));
+    }
   }
 
   function closeDetailModal() {
@@ -2358,6 +2428,8 @@ const SITE_CONFIG = {
     $('globalMapBtn').addEventListener('click', openGlobalMapModal);
     $('globalMapModalClose').addEventListener('click', closeGlobalMapModal);
     $('globalMapModalOverlay').addEventListener('click', (e) => { if (e.target === e.currentTarget) closeGlobalMapModal(); });
+    $('findMapModalClose').addEventListener('click', closeFindMapModal);
+    $('findMapModalOverlay').addEventListener('click', (e) => { if (e.target === e.currentTarget) closeFindMapModal(); });
 
     // FAB
     $('fabAdd').addEventListener('click', () => openFindModal(null));
@@ -2416,12 +2488,16 @@ const SITE_CONFIG = {
       if (file) handlePhotoFile(file);
     });
 
-    // Escape key closes modals (map picker / global map take priority since
-    // they can be stacked on top of other modals)
+    // Escape key closes modals (map picker / global map / single-find map
+    // take priority since they can be stacked on top of other modals)
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
         if ($('mapModalOverlay').classList.contains('show')) {
           closeMapModal();
+          return;
+        }
+        if ($('findMapModalOverlay').classList.contains('show')) {
+          closeFindMapModal();
           return;
         }
         if ($('globalMapModalOverlay').classList.contains('show')) {
