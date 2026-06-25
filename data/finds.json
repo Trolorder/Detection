@@ -4,7 +4,7 @@
       "id": "f_mqt4knyd_htp9gg",
       "inventoryId": "TR-002",
       "createdAt": "2026-06-25T06:32:32.581Z",
-      "photoPath": null,
+      "photoPath": "data/images/f_mqt4knyd_htp9gg.jpg",
       "name": "test2",
       "type": "bouton",
       "matiere": "Laiton",
@@ -14,7 +14,7 @@
       "notes": "test2",
       "lat": 49.44670029695474,
       "lng": 1.0732269287109377,
-      "updatedAt": "2026-06-25T06:32:32.582Z"
+      "updatedAt": "2026-06-25T07:50:18.889Z"
     },
     {
       "id": "f_mqt2ydhj_ryc1qo",
