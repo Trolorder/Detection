@@ -428,18 +428,18 @@ body.is-admin .find-photo .new-badge{ top:42px; }
 
 /* Detail view: fiche + optional adjacent map panel on wide screens */
 .detail-modal-wrap{
-  display:flex; gap:16px; align-items:flex-start; justify-content:center;
+  display:flex; gap:16px; align-items:stretch; justify-content:center;
   margin: 20px auto; max-width: 1100px;
 }
 .detail-modal-wrap .modal{ margin:0; }
 .detail-map-panel{
-  width: 420px; max-width: 420px; height: 560px; flex-shrink:0;
+  width: 420px; max-width: 420px; flex-shrink:0;
   display:flex; flex-direction:column;
   opacity:0; transform: translateX(-12px);
   transition: opacity .25s ease, transform .25s ease;
 }
 .detail-map-panel.panel-visible{ opacity:1; transform: translateX(0); }
-.detail-map-panel .modal-body{ flex:1; display:flex; }
+.detail-map-panel .modal-body{ flex:1; display:flex; max-height:none; overflow:hidden; }
 /* Below desktop width, the side-by-side map panel is never used — the
    detail view falls back to the "voir sur la carte" overlay instead. */
 @media (max-width: 919px){
@@ -2142,29 +2142,44 @@ const SITE_CONFIG = {
 
   function openDetailMapPanel(f) {
     $('detailMapPanelTitle').textContent = `Position — ${f.inventoryId || f.name}`;
-    $('detailMapPanel').classList.remove('hidden');
+    const panel = $('detailMapPanel');
+    panel.classList.remove('hidden');
+    panel.offsetHeight; // force a synchronous reflow so the stretched height
+                        // (matching the sibling fiche) is settled before we
+                        // ask Leaflet to measure its container.
+
+    // Init (or reuse) the map and place the marker right away — Leaflet can
+    // be created while invisible/zero-size, we just need to refresh its size
+    // once the panel has actually finished laying out.
+    initDetailMapOnce();
+    detailMap.map.setView([f.lat, f.lng], 16);
+    if (detailMap.marker) detailMap.map.removeLayer(detailMap.marker);
+    detailMap.marker = L.marker([f.lat, f.lng]).addTo(detailMap.map);
+    const typeLabel = TYPE_LABELS[f.type] || f.type;
+    detailMap.marker.bindPopup(`
+      <div style="font-family: var(--font-body); min-width:140px;">
+        <div style="font-weight:600; font-size:13.5px; margin-bottom:4px;">${escapeHtml(f.name)}</div>
+        <div style="font-size:12px; color:#888;">${typeLabel}${f.date ? ' · ' + fmtDate(f.date) : ''}</div>
+      </div>
+    `).openPopup();
+
     // Two rAFs so the browser registers the layout change (display:none -> flex)
     // before the opacity/transform transition runs, otherwise it just snaps in.
     requestAnimationFrame(() => {
+      detailMap.map.invalidateSize(); // panel is laid out now, even if not yet faded in
       requestAnimationFrame(() => {
-        $('detailMapPanel').classList.add('panel-visible');
+        panel.classList.add('panel-visible');
       });
     });
 
-    setTimeout(() => {
-      initDetailMapOnce();
+    // Refresh again once the open transition has actually finished, in case
+    // the stretch-to-match-height from the sibling fiche only settles late.
+    const onTransitionEnd = (e) => {
+      if (e.target !== panel) return;
       detailMap.map.invalidateSize();
-      detailMap.map.setView([f.lat, f.lng], 16);
-      if (detailMap.marker) detailMap.map.removeLayer(detailMap.marker);
-      detailMap.marker = L.marker([f.lat, f.lng]).addTo(detailMap.map);
-      const typeLabel = TYPE_LABELS[f.type] || f.type;
-      detailMap.marker.bindPopup(`
-        <div style="font-family: var(--font-body); min-width:140px;">
-          <div style="font-weight:600; font-size:13.5px; margin-bottom:4px;">${escapeHtml(f.name)}</div>
-          <div style="font-size:12px; color:#888;">${typeLabel}${f.date ? ' · ' + fmtDate(f.date) : ''}</div>
-        </div>
-      `).openPopup();
-    }, 220);
+      panel.removeEventListener('transitionend', onTransitionEnd);
+    };
+    panel.addEventListener('transitionend', onTransitionEnd);
   }
 
   function closeDetailMapPanel() {
