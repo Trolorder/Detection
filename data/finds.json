@@ -20,7 +20,7 @@
       "id": "f_mqt2ydhj_ryc1qo",
       "inventoryId": "TR-001",
       "createdAt": "2026-06-25T05:47:12.967Z",
-      "photoPath": null,
+      "photoPath": "data/images/f_mqt2ydhj_ryc1qo.jpg",
       "name": "Test",
       "type": "outil",
       "matiere": "Test",
@@ -30,7 +30,7 @@
       "notes": "Test @ é ça % € $ £",
       "lat": 49.447864180014996,
       "lng": 1.0555924563379462,
-      "updatedAt": "2026-06-25T05:47:12.969Z"
+      "updatedAt": "2026-06-25T07:48:57.019Z"
     }
   ]
 }
