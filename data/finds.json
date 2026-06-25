@@ -1,6 +1,22 @@
 {
   "finds": [
     {
+      "id": "f_mqt4knyd_htp9gg",
+      "inventoryId": "TR-002",
+      "createdAt": "2026-06-25T06:32:32.581Z",
+      "photoPath": null,
+      "name": "test2",
+      "type": "bouton",
+      "matiere": "Laiton",
+      "date": "2002-02-02",
+      "epoque": "Contemporain",
+      "lieu": "Rouen, Rouen",
+      "notes": "test2",
+      "lat": 49.44670029695474,
+      "lng": 1.0732269287109377,
+      "updatedAt": "2026-06-25T06:32:32.582Z"
+    },
+    {
       "id": "f_mqt2ydhj_ryc1qo",
       "inventoryId": "TR-001",
       "createdAt": "2026-06-25T05:47:12.967Z",
