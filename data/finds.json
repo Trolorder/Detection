@@ -1,3 +1,20 @@
 {
-  "finds": []
+  "finds": [
+    {
+      "id": "f_mqt2ydhj_ryc1qo",
+      "inventoryId": "TR-001",
+      "createdAt": "2026-06-25T05:47:12.967Z",
+      "photoPath": null,
+      "name": "Test",
+      "type": "outil",
+      "matiere": "Test",
+      "date": "2025-10-01",
+      "epoque": "2026",
+      "lieu": "Presqu'Île Elie, Rouen",
+      "notes": "Test @ é ça % € $ £",
+      "lat": 49.447864180014996,
+      "lng": 1.0555924563379462,
+      "updatedAt": "2026-06-25T05:47:12.969Z"
+    }
+  ]
 }
