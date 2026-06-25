@@ -425,6 +425,26 @@ body.is-admin .find-photo .new-badge{ top:42px; }
   transform: translateY(10px); transition: transform .15s ease;
 }
 .modal-overlay.show .modal{ transform: translateY(0); }
+
+/* Detail view: fiche + optional adjacent map panel on wide screens */
+.detail-modal-wrap{
+  display:flex; gap:16px; align-items:flex-start; justify-content:center;
+  margin: 20px auto; max-width: 1100px;
+}
+.detail-modal-wrap .modal{ margin:0; }
+.detail-map-panel{
+  width: 420px; max-width: 420px; height: 560px; flex-shrink:0;
+  display:flex; flex-direction:column;
+  opacity:0; transform: translateX(-12px);
+  transition: opacity .25s ease, transform .25s ease;
+}
+.detail-map-panel.panel-visible{ opacity:1; transform: translateX(0); }
+.detail-map-panel .modal-body{ flex:1; display:flex; }
+/* Below desktop width, the side-by-side map panel is never used — the
+   detail view falls back to the "voir sur la carte" overlay instead. */
+@media (max-width: 919px){
+  .detail-map-panel{ display:none !important; }
+}
 .modal-header{
   display:flex; align-items:center; justify-content:space-between;
   padding: 18px 22px; border-bottom:1px solid var(--line);
@@ -872,20 +892,33 @@ footer.app-footer{
     </div>
   </div>
 
-  <!-- ===================== MODAL: DETAIL VIEW ===================== -->
+  <!-- ===================== MODAL: DETAIL VIEW (+ optional adjacent map panel on desktop) ===================== -->
   <div class="modal-overlay" id="detailModalOverlay">
-    <div class="modal" style="max-width:600px;">
-      <div class="modal-header">
-        <h3 id="detailModalTitle">Détail</h3>
-        <button class="modal-close" id="detailModalClose">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-        </button>
+    <div class="detail-modal-wrap" id="detailModalWrap">
+      <div class="modal" style="max-width:600px;">
+        <div class="modal-header">
+          <h3 id="detailModalTitle">Détail</h3>
+          <button class="modal-close" id="detailModalClose">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+        <div class="modal-body" id="detailModalBody"></div>
+        <div class="modal-footer">
+          <button class="btn btn-danger admin-only" id="detailDeleteBtn">Supprimer</button>
+          <button class="btn btn-ghost admin-only" id="detailEditBtn">Modifier</button>
+          <p class="helper-text admin-hide" id="detailVisitorHint" style="margin:0; flex:1;">Connecte-toi pour modifier ou supprimer cette trouvaille.</p>
+        </div>
       </div>
-      <div class="modal-body" id="detailModalBody"></div>
-      <div class="modal-footer">
-        <button class="btn btn-danger admin-only" id="detailDeleteBtn">Supprimer</button>
-        <button class="btn btn-ghost admin-only" id="detailEditBtn">Modifier</button>
-        <p class="helper-text admin-hide" id="detailVisitorHint" style="margin:0; flex:1;">Connecte-toi pour modifier ou supprimer cette trouvaille.</p>
+      <div class="modal detail-map-panel hidden" id="detailMapPanel">
+        <div class="modal-header">
+          <h3 id="detailMapPanelTitle">Position</h3>
+          <button class="modal-close" id="detailMapPanelClose">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+        <div class="modal-body" style="padding:16px; height:100%;">
+          <div id="detailLeafletMap" style="height:100%; min-height:340px; border-radius:4px; border:1px solid var(--line);"></div>
+        </div>
       </div>
     </div>
   </div>
@@ -2040,6 +2073,11 @@ const SITE_CONFIG = {
   // ---------------------------------------------------------
   // SINGLE FIND MAP (opened from the detail view, stacks on top of it)
   // ---------------------------------------------------------
+  const DESKTOP_MAP_PANEL_MIN_WIDTH = 920; // keep in sync with the CSS media query
+  function isDesktopMapPanelViable() {
+    return window.innerWidth >= DESKTOP_MAP_PANEL_MIN_WIDTH;
+  }
+
   let findMap = {
     map: null,
     initialized: false,
@@ -2082,6 +2120,59 @@ const SITE_CONFIG = {
   }
 
   // ---------------------------------------------------------
+  // ADJACENT DETAIL MAP PANEL (desktop only — opens automatically next to
+  // the detail view when the find has GPS coordinates; mobile falls back
+  // to the stacked overlay above instead, since there's no room side-by-side)
+  // ---------------------------------------------------------
+  let detailMap = {
+    map: null,
+    initialized: false,
+    marker: null,
+  };
+
+  function initDetailMapOnce() {
+    if (detailMap.initialized) return;
+    detailMap.map = L.map('detailLeafletMap', { attributionControl: true }).setView(DEFAULT_MAP_CENTER, DEFAULT_MAP_ZOOM);
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">contributeurs OpenStreetMap</a>'
+    }).addTo(detailMap.map);
+    detailMap.initialized = true;
+  }
+
+  function openDetailMapPanel(f) {
+    $('detailMapPanelTitle').textContent = `Position — ${f.inventoryId || f.name}`;
+    $('detailMapPanel').classList.remove('hidden');
+    // Two rAFs so the browser registers the layout change (display:none -> flex)
+    // before the opacity/transform transition runs, otherwise it just snaps in.
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        $('detailMapPanel').classList.add('panel-visible');
+      });
+    });
+
+    setTimeout(() => {
+      initDetailMapOnce();
+      detailMap.map.invalidateSize();
+      detailMap.map.setView([f.lat, f.lng], 16);
+      if (detailMap.marker) detailMap.map.removeLayer(detailMap.marker);
+      detailMap.marker = L.marker([f.lat, f.lng]).addTo(detailMap.map);
+      const typeLabel = TYPE_LABELS[f.type] || f.type;
+      detailMap.marker.bindPopup(`
+        <div style="font-family: var(--font-body); min-width:140px;">
+          <div style="font-weight:600; font-size:13.5px; margin-bottom:4px;">${escapeHtml(f.name)}</div>
+          <div style="font-size:12px; color:#888;">${typeLabel}${f.date ? ' · ' + fmtDate(f.date) : ''}</div>
+        </div>
+      `).openPopup();
+    }, 220);
+  }
+
+  function closeDetailMapPanel() {
+    $('detailMapPanel').classList.remove('panel-visible');
+    setTimeout(() => $('detailMapPanel').classList.add('hidden'), 250);
+  }
+
+  // ---------------------------------------------------------
   // DETAIL MODAL
   // ---------------------------------------------------------
   function openDetailModal(findId) {
@@ -2112,10 +2203,20 @@ const SITE_CONFIG = {
     if (showMapBtn) {
       showMapBtn.addEventListener('click', () => openFindMapModal(f));
     }
+
+    // Desktop: auto-open the adjacent map panel when GPS is available.
+    // Mobile: skip entirely, the CSS media query hides the panel anyway —
+    // the "voir sur la carte" button (stacked overlay) is the mobile path.
+    if (f.lat != null && f.lng != null && isDesktopMapPanelViable()) {
+      openDetailMapPanel(f);
+    } else {
+      closeDetailMapPanel();
+    }
   }
 
   function closeDetailModal() {
     $('detailModalOverlay').classList.remove('show');
+    closeDetailMapPanel();
   }
 
   async function deleteFindById(findId) {
@@ -2456,6 +2557,7 @@ const SITE_CONFIG = {
     // Detail modal
     $('detailModalClose').addEventListener('click', closeDetailModal);
     $('detailModalOverlay').addEventListener('click', (e) => { if (e.target === e.currentTarget) closeDetailModal(); });
+    $('detailMapPanelClose').addEventListener('click', closeDetailMapPanel);
     $('detailDeleteBtn').addEventListener('click', deleteCurrentFind);
     $('detailEditBtn').addEventListener('click', () => {
       const id = state.editingId;
@@ -2511,6 +2613,25 @@ const SITE_CONFIG = {
         closeFindModal();
         closeDetailModal();
       }
+    });
+
+    // If the window is resized across the desktop/mobile threshold while a
+    // find's detail view happens to be open, keep the map panel state in
+    // sync rather than leaving it stuck open on a now-too-narrow viewport.
+    let resizeDebounceTimer = null;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeDebounceTimer);
+      resizeDebounceTimer = setTimeout(() => {
+        if ($('detailModalOverlay').classList.contains('show') && state.editingId) {
+          const f = state.finds.find(x => x.id === state.editingId);
+          if (!f) return;
+          const shouldShow = f.lat != null && f.lng != null && isDesktopMapPanelViable();
+          const isShowing = $('detailMapPanel').classList.contains('panel-visible');
+          if (shouldShow && !isShowing) openDetailMapPanel(f);
+          else if (!shouldShow && isShowing) closeDetailMapPanel();
+          else if (detailMap.map) detailMap.map.invalidateSize();
+        }
+      }, 200);
     });
   }
 
