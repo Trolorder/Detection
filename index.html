@@ -439,7 +439,8 @@ body.is-admin .find-photo .new-badge{ top:42px; }
   transition: opacity .25s ease, transform .25s ease;
 }
 .detail-map-panel.panel-visible{ opacity:1; transform: translateX(0); }
-.detail-map-panel .modal-body{ flex:1; display:flex; max-height:none; overflow:hidden; }
+.detail-map-panel .modal-body{ flex:1; display:flex; flex-direction:column; max-height:none; overflow:hidden; min-height:0; }
+.detail-map-panel .modal-body > div{ flex:1; min-height:0; }
 /* Below desktop width, the side-by-side map panel is never used — the
    detail view falls back to the "voir sur la carte" overlay instead. */
 @media (max-width: 919px){
@@ -917,7 +918,7 @@ footer.app-footer{
           </button>
         </div>
         <div class="modal-body" style="padding:16px; height:100%;">
-          <div id="detailLeafletMap" style="height:100%; min-height:340px; border-radius:4px; border:1px solid var(--line);"></div>
+          <div id="detailLeafletMap" style="min-height:340px; border-radius:4px; border:1px solid var(--line);"></div>
         </div>
       </div>
     </div>
