@@ -742,6 +742,9 @@ footer.app-footer{
           <select class="filter-select" id="filterMatiere">
             <option value="">Toutes matières</option>
           </select>
+          <select class="filter-select" id="filterDecouvreur">
+            <option value="">Tous les chercheurs</option>
+          </select>
           <select class="filter-select" id="sortBy">
             <option value="date_desc">Plus récentes</option>
             <option value="date_asc">Plus anciennes</option>
@@ -879,6 +882,10 @@ footer.app-footer{
               </button>
             </div>
             <p class="helper-text" id="gpsIndicator"></p>
+          </div>
+          <div class="field-group span-2">
+            <label class="field-label">Découvreur</label>
+            <input type="text" id="fDecouvreur" placeholder="Nom ou pseudo de la personne qui a trouvé l'objet">
           </div>
           <div class="field-group span-2">
             <label class="field-label">Notes</label>
@@ -1442,13 +1449,15 @@ const SITE_CONFIG = {
     const q = ($('searchInput').value || '').toLowerCase().trim();
     const typeFilter = $('filterType').value;
     const matiereFilter = $('filterMatiere').value;
+    const decouvreurFilter = $('filterDecouvreur').value;
     const sortBy = $('sortBy').value;
 
     let list = state.finds.filter(f => {
       if (typeFilter && f.type !== typeFilter) return false;
       if (matiereFilter && (f.matiere || '') !== matiereFilter) return false;
+      if (decouvreurFilter && (f.decouvreur || '') !== decouvreurFilter) return false;
       if (q) {
-        const hay = `${f.name} ${f.lieu || ''} ${f.epoque || ''} ${f.matiere || ''} ${f.notes || ''}`.toLowerCase();
+        const hay = `${f.name} ${f.lieu || ''} ${f.epoque || ''} ${f.matiere || ''} ${f.notes || ''} ${f.decouvreur || ''}`.toLowerCase();
         if (!hay.includes(q)) return false;
       }
       return true;
@@ -1484,25 +1493,29 @@ const SITE_CONFIG = {
   // Rebuild the "Matière" filter options from whatever materials are
   // actually present in the data (covers free-text "Autre..." values too),
   // while preserving the user's current selection if it's still valid.
-  function refreshMatiereFilterOptions() {
-    const select = $('filterMatiere');
+  // Rebuild a filter <select>'s options from whatever values are actually
+  // present in the data for a given field (covers free-text values too),
+  // while preserving the user's current selection if it's still valid.
+  function refreshDynamicFilterOptions(selectId, fieldName, allLabel) {
+    const select = $(selectId);
     const previousValue = select.value;
 
-    const matieres = [...new Set(
-      state.finds.map(f => (f.matiere || '').trim()).filter(Boolean)
+    const values = [...new Set(
+      state.finds.map(f => (f[fieldName] || '').trim()).filter(Boolean)
     )].sort((a, b) => a.localeCompare(b, 'fr'));
 
-    select.innerHTML = '<option value="">Toutes matières</option>' +
-      matieres.map(m => `<option value="${escapeHtml(m)}">${escapeHtml(m)}</option>`).join('');
+    select.innerHTML = `<option value="">${allLabel}</option>` +
+      values.map(v => `<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`).join('');
 
-    if (matieres.includes(previousValue)) {
+    if (values.includes(previousValue)) {
       select.value = previousValue;
     }
   }
 
   function renderFinds() {
     renderStats();
-    refreshMatiereFilterOptions();
+    refreshDynamicFilterOptions('filterMatiere', 'matiere', 'Toutes matières');
+    refreshDynamicFilterOptions('filterDecouvreur', 'decouvreur', 'Tous les chercheurs');
     const list = getFilteredSortedFinds();
     const container = $('finsContainer');
 
@@ -1566,6 +1579,7 @@ const SITE_CONFIG = {
           <div class="find-meta">
             ${f.lieu ? `<div class="find-meta-row">${iconPin()}<span>${escapeHtml(f.lieu)}</span></div>` : ''}
             <div class="find-meta-row">${iconCalendar()}<span>${fmtDate(f.date)}</span></div>
+            ${f.decouvreur ? `<div class="find-meta-row">${iconPerson()}<span>${escapeHtml(f.decouvreur)}</span></div>` : ''}
           </div>
           <span class="find-type-badge" data-type="${f.type}">${TYPE_LABELS[f.type] || f.type}</span>
         </div>
@@ -1582,7 +1596,7 @@ const SITE_CONFIG = {
         <div class="find-row-photo">${photo}</div>
         <div class="find-row-main">
           <div class="find-row-name">${escapeHtml(f.name)}${newBadge}</div>
-          <div class="find-row-sub">${TYPE_LABELS[f.type] || f.type}${f.lieu ? ' · ' + escapeHtml(f.lieu) : ''}${f.epoque ? ' · ' + escapeHtml(f.epoque) : ''}</div>
+          <div class="find-row-sub">${TYPE_LABELS[f.type] || f.type}${f.lieu ? ' · ' + escapeHtml(f.lieu) : ''}${f.epoque ? ' · ' + escapeHtml(f.epoque) : ''}${f.decouvreur ? ' · ' + escapeHtml(f.decouvreur) : ''}</div>
         </div>
         <div class="find-row-tag">${f.inventoryId || ''}</div>
         <div class="find-row-date">${fmtDate(f.date)}</div>
@@ -1621,6 +1635,9 @@ const SITE_CONFIG = {
   }
   function iconCalendar() {
     return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>`;
+  }
+  function iconPerson() {
+    return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`;
   }
 
   function escapeHtml(str) {
@@ -1675,6 +1692,7 @@ const SITE_CONFIG = {
     $('fDate').value = '';
     setSelectOtherValue('fEpoque', 'fEpoqueOther', '');
     $('fLieu').value = '';
+    $('fDecouvreur').value = '';
     $('fNotes').value = '';
     state.pendingPhoto = null;
     state.photoRemoved = false;
@@ -1709,6 +1727,7 @@ const SITE_CONFIG = {
       $('fDate').value = f.date || '';
       setSelectOtherValue('fEpoque', 'fEpoqueOther', f.epoque || '');
       $('fLieu').value = f.lieu || '';
+      $('fDecouvreur').value = f.decouvreur || '';
       $('fNotes').value = f.notes || '';
       if (f.lat != null && f.lng != null) {
         state.pendingLat = f.lat;
@@ -1776,6 +1795,7 @@ const SITE_CONFIG = {
       find.date = $('fDate').value;
       find.epoque = getSelectOtherValue('fEpoque', 'fEpoqueOther');
       find.lieu = $('fLieu').value.trim();
+      find.decouvreur = $('fDecouvreur').value.trim();
       find.notes = $('fNotes').value.trim();
       find.lat = state.pendingLat != null ? state.pendingLat : (find.lat ?? null);
       find.lng = state.pendingLng != null ? state.pendingLng : (find.lng ?? null);
@@ -2210,6 +2230,7 @@ const SITE_CONFIG = {
         <div class="detail-item"><dt>Date de découverte</dt><dd>${fmtDate(f.date)}</dd></div>
         <div class="detail-item"><dt>Époque</dt><dd>${escapeHtml(f.epoque) || '—'}</dd></div>
         <div class="detail-item span-2" style="grid-column:1/-1;"><dt>Lieu</dt><dd>${escapeHtml(f.lieu) || '—'}${(f.lat != null && f.lng != null) ? ` · <button type="button" class="link-btn" data-show-find-map="${f.id}">voir sur la carte ↗</button>` : ''}</dd></div>
+        ${f.decouvreur ? `<div class="detail-item span-2" style="grid-column:1/-1;"><dt>Découvreur</dt><dd>${escapeHtml(f.decouvreur)}</dd></div>` : ''}
         ${f.notes ? `<div class="detail-item" style="grid-column:1/-1;"><dt>Notes</dt><dd>${escapeHtml(f.notes)}</dd></div>` : ''}
       </dl>
     `;
@@ -2525,6 +2546,7 @@ const SITE_CONFIG = {
     $('searchInput').addEventListener('input', renderFinds);
     $('filterType').addEventListener('change', renderFinds);
     $('filterMatiere').addEventListener('change', renderFinds);
+    $('filterDecouvreur').addEventListener('change', renderFinds);
     $('sortBy').addEventListener('change', renderFinds);
 
     // View toggle
