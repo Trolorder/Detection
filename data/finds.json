@@ -1,6 +1,23 @@
 {
   "finds": [
     {
+      "id": "f_mquygexw_w3bnfd",
+      "inventoryId": "TR-008",
+      "createdAt": "2026-06-26T13:16:48.932Z",
+      "photoPath": null,
+      "name": "4",
+      "type": "bijou",
+      "matiere": "Argent",
+      "date": "2026-06-02",
+      "epoque": "Renaissance",
+      "lieu": "Rouen, Rouen",
+      "decouvreur": "Trolorder",
+      "notes": "4",
+      "lat": 49.44312875803008,
+      "lng": 1.0986328125000002,
+      "updatedAt": "2026-06-26T13:16:48.932Z"
+    },
+    {
       "id": "f_mquiy8hx_0s95s6",
       "inventoryId": "TR-007",
       "createdAt": "2026-06-26T06:02:46.534Z",
