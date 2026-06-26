@@ -1,6 +1,23 @@
 {
   "finds": [
     {
+      "id": "f_mqubqd2v_25c888",
+      "inventoryId": "TR-006",
+      "createdAt": "2026-06-26T02:40:41.911Z",
+      "photoPath": "data/images/f_mqubqd2v_25c888.jpg",
+      "name": "tesst",
+      "type": "militaria",
+      "matiere": "Plomb",
+      "date": "2026-06-03",
+      "epoque": "XIXe siècle",
+      "lieu": "Canteleu, Rouen",
+      "decouvreur": "Trolorder",
+      "notes": "tesst",
+      "lat": 49.454958484295446,
+      "lng": 1.0467910766601565,
+      "updatedAt": "2026-06-26T02:40:41.911Z"
+    },
+    {
       "id": "f_mqtvvykj_k7zbhx",
       "inventoryId": "TR-005",
       "createdAt": "2026-06-25T19:17:09.187Z",
