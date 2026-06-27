@@ -516,17 +516,23 @@ body.is-admin .find-photo .new-badge{ top:42px; }
   background: var(--soil-900); border:1px solid var(--line-soft); border-radius: var(--radius);
   padding:10px 12px;
 }
-.comment-meta{ display:flex; align-items:baseline; gap:8px; margin-bottom:5px; flex-wrap:wrap; }
-.comment-author{ font-weight:600; font-size:12.5px; color: var(--brass-lt); }
-.comment-date{ font-size:11px; color: var(--parchment-faint); font-family: var(--font-mono); }
-.comment-delete-btn{
-  margin-left:auto; width:22px; height:22px; border-radius:50%;
+.comment-meta{ display:flex; align-items:baseline; gap:4px; margin-bottom:5px; flex-wrap:wrap; }
+.comment-author{ font-weight:600; font-size:12.5px; color: var(--brass-lt); margin-right:4px; }
+.comment-date{ font-size:11px; color: var(--parchment-faint); font-family: var(--font-mono); margin-right:auto; }
+.comment-edit-btn, .comment-delete-btn{
+  width:22px; height:22px; border-radius:50%;
   display:flex; align-items:center; justify-content:center;
-  color: var(--parchment-faint); transition: all .15s ease;
+  color: var(--parchment-faint); transition: all .15s ease; flex-shrink:0;
 }
+.comment-edit-btn:hover{ background: rgba(168,136,79,0.15); color: var(--brass-lt); }
 .comment-delete-btn:hover{ background: rgba(181,84,63,0.15); color: var(--rust-lt); }
-.comment-delete-btn svg{ width:12px; height:12px; }
+.comment-edit-btn svg, .comment-delete-btn svg{ width:12px; height:12px; }
 .comment-text{ font-size:13.5px; color: var(--parchment); line-height:1.45; white-space: pre-wrap; word-break: break-word; }
+
+.comment-edit-textarea{
+  width:100%; font-size:13.5px; min-height:60px; margin-bottom:8px;
+}
+.comment-edit-actions{ display:flex; gap:8px; justify-content:flex-end; }
 
 .comment-form{ display:flex; flex-direction:column; gap:8px; }
 .comment-form textarea{ resize: vertical; }
@@ -575,6 +581,7 @@ body.is-admin .admin-only{ display: revert !important; }
 body.is-admin .quick-delete-btn.admin-only{ display: flex !important; }
 body.is-admin #fabAdd.admin-only{ display: flex !important; }
 body.is-admin #globalMapBtn.admin-only{ display: flex !important; }
+body.is-admin #myNameBtn.admin-only{ display: flex !important; }
 
 /* Inverse: visible for visitors, hidden once connected as admin */
 body.is-admin .admin-hide{ display: none !important; }
@@ -735,7 +742,7 @@ footer.app-footer{
           </div>
         </div>
         <div class="topbar-actions">
-          <button class="icon-btn" id="myNameBtn" title="Changer mon pseudo de découvreur">
+          <button class="icon-btn admin-only" id="myNameBtn" title="Changer mon pseudo de découvreur">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
           </button>
           <button class="icon-btn privacy-toggle" id="privacyToggle" title="Mode pudique (flouter les photos)">
@@ -947,9 +954,9 @@ footer.app-footer{
         </div>
         <div class="modal-body" id="detailModalBody"></div>
         <div class="modal-footer">
-          <button class="btn btn-danger admin-only" id="detailDeleteBtn">Supprimer</button>
-          <button class="btn btn-ghost admin-only" id="detailEditBtn">Modifier</button>
-          <p class="helper-text admin-hide" id="detailVisitorHint" style="margin:0; flex:1;">Connecte-toi pour modifier ou supprimer cette trouvaille.</p>
+          <button class="btn btn-danger hidden" id="detailDeleteBtn">Supprimer</button>
+          <button class="btn btn-ghost hidden" id="detailEditBtn">Modifier</button>
+          <p class="helper-text" id="detailVisitorHint" style="margin:0; flex:1;">Connecte-toi pour modifier ou supprimer cette trouvaille.</p>
         </div>
       </div>
       <div class="modal detail-map-panel hidden" id="detailMapPanel">
@@ -1634,9 +1641,9 @@ const SITE_CONFIG = {
         <div class="find-photo">
           ${f.inventoryId ? `<span class="find-tag">${f.inventoryId}</span>` : ''}
           ${newBadge}
-          <button type="button" class="quick-delete-btn admin-only" data-quick-delete="${f.id}" title="Supprimer cette trouvaille">
+          ${canModifyFind(f) ? `<button type="button" class="quick-delete-btn" data-quick-delete="${f.id}" title="Supprimer cette trouvaille">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
-          </button>
+          </button>` : ''}
           ${photo}
         </div>
         <div class="find-body">
@@ -1665,9 +1672,9 @@ const SITE_CONFIG = {
         </div>
         <div class="find-row-tag">${f.inventoryId || ''}</div>
         <div class="find-row-date">${fmtDate(f.date)}</div>
-        <button type="button" class="quick-delete-btn quick-delete-row admin-only" data-quick-delete="${f.id}" title="Supprimer cette trouvaille">
+        ${canModifyFind(f) ? `<button type="button" class="quick-delete-btn quick-delete-row" data-quick-delete="${f.id}" title="Supprimer cette trouvaille">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
-        </button>
+        </button>` : ''}
       </div>`;
   }
 
@@ -1718,6 +1725,63 @@ const SITE_CONFIG = {
   }
 
   // ---------------------------------------------------------
+  // OWNERSHIP PERMISSIONS — only the original découvreur (matched by
+  // remembered device name) can edit/delete their own find or comment.
+  // A hashed master override exists for orphaned finds (created before the
+  // découvreur field existed) — never stored in cleartext in this file.
+  // ---------------------------------------------------------
+  const MASTER_NAME_HASH = '625872ca532d2dead762d9afd045590972207068dd1e2d3a2c89546ad6da1c17';
+
+  async function sha256Hex(text) {
+    const buf = await crypto.subtle.digest('SHA-256', enc.encode(text.trim().toLowerCase()));
+    return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+  }
+
+  // Cached after the first check this session, since hashing is async but
+  // the result never changes unless the remembered name itself changes.
+  let masterNameCache = { name: null, isMaster: false };
+
+  async function isMasterName(name) {
+    if (!name) return false;
+    if (masterNameCache.name === name) return masterNameCache.isMaster;
+    const hash = await sha256Hex(name);
+    const result = hash === MASTER_NAME_HASH;
+    masterNameCache = { name, isMaster: result };
+    return result;
+  }
+
+  // Synchronous best-effort check using the cache — used in render paths
+  // that can't easily be made async (template strings). Falls back to
+  // "not master" until the async check below has populated the cache, which
+  // happens once per session on the first relevant permission check.
+  function isMasterNameCachedSync(name) {
+    return masterNameCache.name === name && masterNameCache.isMaster;
+  }
+
+  // Primes the cache as early as possible (right after a name is remembered)
+  // so subsequent synchronous render checks are accurate without a visible delay.
+  function primeMasterNameCache(name) {
+    if (name) isMasterName(name); // fire and forget, populates masterNameCache
+  }
+
+  function canModifyFind(f) {
+    if (!canViewLocation()) return false; // must be logged in at all
+    const myName = getRememberedDecouvreurName();
+    if (!myName) return false;
+    if (isMasterNameCachedSync(myName)) return true;
+    if (!f.decouvreur) return false; // orphaned find: only master can touch it
+    return f.decouvreur === myName;
+  }
+
+  function canModifyComment(c) {
+    if (!canViewLocation()) return false;
+    const myName = getRememberedDecouvreurName();
+    if (!myName) return false;
+    if (isMasterNameCachedSync(myName)) return true;
+    return c.author === myName;
+  }
+
+  // ---------------------------------------------------------
   // DECOUVREUR NAME (remembered per-device, prompted only when needed)
   // ---------------------------------------------------------
   function getRememberedDecouvreurName() {
@@ -1728,6 +1792,7 @@ const SITE_CONFIG = {
     const trimmed = (name || '').trim();
     if (trimmed) {
       localStorage.setItem(LS_DECOUVREUR_KEY, trimmed);
+      primeMasterNameCache(trimmed);
     } else {
       localStorage.removeItem(LS_DECOUVREUR_KEY);
     }
@@ -1861,6 +1926,15 @@ const SITE_CONFIG = {
 
   async function openFindModal(findId) {
     const isNewFind = !findId;
+
+    if (!isNewFind) {
+      const existing = state.finds.find(x => x.id === findId);
+      if (existing && !canModifyFind(existing)) {
+        toast('Seul le découvreur de cette trouvaille peut la modifier.', 'error');
+        return;
+      }
+    }
+
     await ensureDecouvreurNameIfNeeded(isNewFind);
 
     state.editingId = findId;
@@ -2414,23 +2488,28 @@ const SITE_CONFIG = {
   }
 
   function renderCommentsSection(findId, comments) {
-    const myName = getRememberedDecouvreurName();
     const isAdmin = document.body.classList.contains('is-admin');
 
     const listHtml = comments.length === 0
       ? `<p class="helper-text" style="margin:8px 0;">Aucun commentaire pour l'instant.</p>`
-      : comments.map(c => `
-          <div class="comment-item">
+      : comments.map(c => {
+          const mayModify = canModifyComment(c);
+          return `
+          <div class="comment-item" data-comment-id="${c.id}">
             <div class="comment-meta">
               <span class="comment-author">${escapeHtml(c.author || 'Anonyme')}</span>
-              <span class="comment-date">${fmtDateTime(c.createdAt)}</span>
-              ${(isAdmin && myName && c.author === myName) ? `<button type="button" class="comment-delete-btn" data-delete-comment="${c.id}" title="Supprimer ce commentaire">
+              <span class="comment-date">${fmtDateTime(c.createdAt)}${c.editedAt ? ' (modifié)' : ''}</span>
+              ${mayModify ? `<button type="button" class="comment-edit-btn" data-edit-comment="${c.id}" title="Modifier ce commentaire">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              </button>` : ''}
+              ${mayModify ? `<button type="button" class="comment-delete-btn" data-delete-comment="${c.id}" title="Supprimer ce commentaire">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
               </button>` : ''}
             </div>
-            <div class="comment-text">${escapeHtml(c.text)}</div>
+            <div class="comment-text" data-comment-text="${c.id}">${escapeHtml(c.text)}</div>
           </div>
-        `).join('');
+        `;
+        }).join('');
 
     const formHtml = isAdmin
       ? `
@@ -2484,6 +2563,57 @@ const SITE_CONFIG = {
     qsa('[data-delete-comment]', $('commentsSectionContainer')).forEach(btn => {
       btn.addEventListener('click', () => deleteComment(findId, btn.dataset.deleteComment));
     });
+    qsa('[data-edit-comment]', $('commentsSectionContainer')).forEach(btn => {
+      btn.addEventListener('click', () => startEditComment(findId, btn.dataset.editComment));
+    });
+  }
+
+  function startEditComment(findId, commentId) {
+    const comment = state.currentComments.find(c => c.id === commentId);
+    if (!comment) return;
+    const textEl = $('commentsSectionContainer').querySelector(`[data-comment-text="${commentId}"]`);
+    if (!textEl) return;
+
+    textEl.innerHTML = `
+      <textarea class="comment-edit-textarea">${escapeHtml(comment.text)}</textarea>
+      <div class="comment-edit-actions">
+        <button type="button" class="btn btn-ghost btn-sm" data-cancel-edit="${commentId}">Annuler</button>
+        <button type="button" class="btn btn-primary btn-sm" data-save-edit="${commentId}">Enregistrer</button>
+      </div>
+    `;
+    textEl.querySelector('[data-cancel-edit]').addEventListener('click', () => {
+      textEl.innerHTML = escapeHtml(comment.text);
+    });
+    textEl.querySelector('[data-save-edit]').addEventListener('click', () => saveEditedComment(findId, commentId, textEl));
+    textEl.querySelector('textarea').focus();
+  }
+
+  async function saveEditedComment(findId, commentId, textEl) {
+    const textarea = textEl.querySelector('textarea');
+    const newText = textarea.value.trim();
+    if (!newText) {
+      toast('Le commentaire ne peut pas être vide.', 'error');
+      return;
+    }
+    const comment = state.currentComments.find(c => c.id === commentId);
+    if (!comment || !canModifyComment(comment)) {
+      toast('Tu ne peux modifier que tes propres commentaires.', 'error');
+      return;
+    }
+
+    try {
+      const updated = state.currentComments.map(c =>
+        c.id === commentId ? { ...c, text: newText, editedAt: new Date().toISOString() } : c
+      );
+      const newSha = await saveComments(findId, updated, state.currentCommentsSha, `comment: edit ${commentId} on ${findId}`);
+      state.currentComments = updated;
+      state.currentCommentsSha = newSha;
+      $('commentsSectionContainer').innerHTML = renderCommentsSection(findId, updated);
+      wireCommentsSection(findId);
+      toast('Commentaire modifié.', 'success');
+    } catch (e) {
+      toast('Erreur lors de la modification : ' + e.message, 'error');
+    }
   }
 
   async function submitNewComment(findId) {
@@ -2525,6 +2655,11 @@ const SITE_CONFIG = {
   }
 
   async function deleteComment(findId, commentId) {
+    const comment = state.currentComments.find(c => c.id === commentId);
+    if (!comment || !canModifyComment(comment)) {
+      toast('Tu ne peux supprimer que tes propres commentaires.', 'error');
+      return;
+    }
     if (!confirm('Supprimer ce commentaire ?')) return;
     try {
       const updated = state.currentComments.filter(c => c.id !== commentId);
@@ -2568,6 +2703,14 @@ const SITE_CONFIG = {
     `;
     $('detailModalOverlay').classList.add('show');
 
+    const canModify = canModifyFind(f);
+    $('detailDeleteBtn').classList.toggle('hidden', !canModify);
+    $('detailEditBtn').classList.toggle('hidden', !canModify);
+    $('detailVisitorHint').classList.toggle('hidden', canModify);
+    $('detailVisitorHint').textContent = canViewLocation()
+      ? 'Seul le découvreur de cette trouvaille peut la modifier ou la supprimer.'
+      : 'Connecte-toi pour modifier ou supprimer cette trouvaille.';
+
     const showMapBtn = $('detailModalBody').querySelector('[data-show-find-map]');
     if (showMapBtn) {
       showMapBtn.addEventListener('click', () => openFindMapModal(f));
@@ -2598,6 +2741,10 @@ const SITE_CONFIG = {
   async function deleteFindById(findId) {
     const f = state.finds.find(x => x.id === findId);
     if (!f) return false;
+    if (!canModifyFind(f)) {
+      toast('Seul le découvreur de cette trouvaille peut la supprimer.', 'error');
+      return false;
+    }
     if (!confirm(`Supprimer définitivement "${f.name}" (${f.inventoryId}) ?`)) return false;
 
     try {
@@ -3036,6 +3183,7 @@ const SITE_CONFIG = {
   async function init() {
     wireEvents();
     resolveRepoConfig();
+    primeMasterNameCache(getRememberedDecouvreurName());
 
     if (!state.repo) {
       // Nothing configured anywhere (SITE_CONFIG empty and no local override).
