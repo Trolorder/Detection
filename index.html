@@ -3225,6 +3225,14 @@ const SITE_CONFIG = {
   }
 
   document.addEventListener('DOMContentLoaded', init);
+
+  // Register Service Worker for PWA installability (Chrome Android WebAPK)
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/Detection/sw.js')
+        .catch(err => console.warn('SW registration failed:', err));
+    });
+  }
 })();
 
 </script>
