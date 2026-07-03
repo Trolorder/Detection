@@ -1,23 +1,6 @@
 {
   "finds": [
     {
-      "id": "f_mquiy8hx_0s95s6",
-      "inventoryId": "TR-007",
-      "createdAt": "2026-06-26T06:02:46.534Z",
-      "photoPath": "data/images/f_mquiy8hx_0s95s6.jpg",
-      "name": "Test nom",
-      "type": "militaria",
-      "matiere": "Plomb",
-      "date": "2026-06-04",
-      "epoque": "",
-      "lieu": "Sotteville-lès-Rouen, Rouen",
-      "decouvreur": "Trolorder",
-      "notes": "Tessst",
-      "lat": 49.41352600199119,
-      "lng": 1.0801864056424026,
-      "updatedAt": "2026-06-26T06:02:46.535Z"
-    },
-    {
       "id": "f_mqtvvykj_k7zbhx",
       "inventoryId": "TR-005",
       "createdAt": "2026-06-25T19:17:09.187Z",
