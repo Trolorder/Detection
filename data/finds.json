@@ -1,22 +1,6 @@
 {
   "finds": [
     {
-      "id": "f_mqtu6jj6_3z99vx",
-      "inventoryId": "TR-003",
-      "createdAt": "2026-06-25T18:29:23.683Z",
-      "photoPath": "data/images/f_mqtu6jj6_3z99vx.jpg",
-      "name": "† † †",
-      "type": "militaria",
-      "matiere": "Verre",
-      "date": "2016-04-21",
-      "epoque": "Préhistoire",
-      "lieu": "Val-de-Reuil, Les Andelys",
-      "notes": "† † † † † † † † † † † † † † † † † † † † † † † † † † † † † † † † † † † †",
-      "lat": 49.2644440395575,
-      "lng": 1.197831630706787,
-      "updatedAt": "2026-06-25T18:29:23.683Z"
-    },
-    {
       "id": "f_mqt4knyd_htp9gg",
       "inventoryId": "TR-002",
       "createdAt": "2026-06-25T06:32:32.581Z",
