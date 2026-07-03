@@ -1,22 +1,6 @@
 {
   "finds": [
     {
-      "id": "f_mqtvvykj_k7zbhx",
-      "inventoryId": "TR-005",
-      "createdAt": "2026-06-25T19:17:09.187Z",
-      "photoPath": "data/images/f_mqtvvykj_k7zbhx.jpg",
-      "name": "testttt",
-      "type": "bouton",
-      "matiere": "Laiton",
-      "date": "2026-06-02",
-      "epoque": "Seconde Guerre mondiale",
-      "lieu": "",
-      "notes": "rzqrrrr",
-      "lat": null,
-      "lng": null,
-      "updatedAt": "2026-06-25T19:17:22.811Z"
-    },
-    {
       "id": "f_mqtu6jj6_3z99vx",
       "inventoryId": "TR-003",
       "createdAt": "2026-06-25T18:29:23.683Z",
