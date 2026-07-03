@@ -31,22 +31,6 @@
       "lat": 49.44670029695474,
       "lng": 1.0732269287109377,
       "updatedAt": "2026-06-25T07:50:18.889Z"
-    },
-    {
-      "id": "f_mqt2ydhj_ryc1qo",
-      "inventoryId": "TR-001",
-      "createdAt": "2026-06-25T05:47:12.967Z",
-      "photoPath": "data/images/f_mqt2ydhj_ryc1qo.jpg",
-      "name": "Test",
-      "type": "outil",
-      "matiere": "Test",
-      "date": "2025-10-01",
-      "epoque": "2026",
-      "lieu": "Presqu'Île Elie, Rouen",
-      "notes": "Test @ é ça % € $ £",
-      "lat": 49.447864180014996,
-      "lng": 1.0555924563379462,
-      "updatedAt": "2026-06-25T07:48:57.019Z"
     }
   ]
 }
