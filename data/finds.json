@@ -1,3 +1,21 @@
 {
-  "finds": []
+  "finds": [
+    {
+      "id": "f_mra9a1l9_fi4s9f",
+      "inventoryId": "TR-001",
+      "createdAt": "2026-07-07T06:16:20.109Z",
+      "photoPath": "data/images/f_mra9a1l9_fi4s9f.jpg",
+      "name": "1",
+      "type": "piece",
+      "matiere": "",
+      "date": "",
+      "epoque": "",
+      "lieu": "",
+      "decouvreur": "Trolorder",
+      "notes": "",
+      "lat": null,
+      "lng": null,
+      "updatedAt": "2026-07-07T06:16:20.111Z"
+    }
+  ]
 }
