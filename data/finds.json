@@ -1,6 +1,25 @@
 {
   "finds": [
     {
+      "id": "f_mumzafnr_46vypd",
+      "inventoryId": "TR-002",
+      "createdAt": "2026-09-29T17:56:49.482Z",
+      "name": "TR-002",
+      "type": "piece",
+      "matiere": "",
+      "date": "",
+      "epoque": "",
+      "lieu": "",
+      "decouvreur": "Trolorder",
+      "notes": "Cet objet semble être un jeton de compte en laiton à l'effigie d'Henri IV (représenté à cheval avec la légende HENRI IIII ROY DE FRANCE ET DE NAVAR), vraisemblablement frappé à Nuremberg au début du XVIle siècle par un maître rottmeister ou compteur comme Hans Krauwinckel. Numista",
+      "lat": null,
+      "lng": null,
+      "updatedAt": "2026-09-29T17:56:49.482Z",
+      "photos": [
+        "data/images/f_mumzafnr_46vypd_1790704609483_0.jpg"
+      ]
+    },
+    {
       "id": "f_mumz8euk_v1kz48",
       "inventoryId": "TR-001",
       "createdAt": "2026-09-29T17:55:15.120Z",
