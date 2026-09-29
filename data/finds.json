@@ -1,3 +1,23 @@
 {
-  "finds": []
+  "finds": [
+    {
+      "id": "f_mumz8euk_v1kz48",
+      "inventoryId": "TR-001",
+      "createdAt": "2026-09-29T17:55:15.120Z",
+      "name": "TR-001",
+      "type": "piece",
+      "matiere": "",
+      "date": "",
+      "epoque": "",
+      "lieu": "",
+      "decouvreur": "Trolorder",
+      "notes": "L'objet sur l'image semble être un jeton de compte en laiton à l'effigie d'Henri IV le Grand, portant la légende << Omnis Victoria Adno » (ou variante) au revers avec les écus de France et de Navarre.\n\nCaractéristiques principales\n\nType : Jeton de compte / Jeton numismatique\n\nSujet : Henri IV (roi de France et de Navarre de 1589 à 1610)\n\nRevers visible : Les écus de France et de Navarre surmontés d'une épée couronnée et encadrés de palmes, avec la date < 1610 » fragmentaire ou similaire.\n\nMatériau courant:\n\nLaiton\n\nN\n\nNumista +1\n\nSi vous le souhaitez, dites-moi :\n\nLe poids et le diamètre exacts de l'objet\n\nCe qui est gravé sur l'autre face (avers)",
+      "lat": null,
+      "lng": null,
+      "updatedAt": "2026-09-29T17:55:15.122Z",
+      "photos": [
+        "data/images/f_mumz8euk_v1kz48_1790704515122_0.jpg"
+      ]
+    }
+  ]
 }
