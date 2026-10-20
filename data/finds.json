@@ -1,6 +1,27 @@
 {
   "finds": [
     {
+      "id": "f_mvguvitw_9rbvop",
+      "inventoryId": "TR-003",
+      "createdAt": "2026-10-20T15:46:20.565Z",
+      "name": "TR-003",
+      "type": "piece",
+      "matiere": "",
+      "date": "",
+      "epoque": "",
+      "lieu": "",
+      "decouvreur": "Trolorder",
+      "notes": "",
+      "lat": null,
+      "lng": null,
+      "updatedAt": "2026-10-20T15:46:20.566Z",
+      "photos": [
+        "data/images/f_mvguvitw_9rbvop_1792511180566_0.jpg",
+        "data/images/f_mvguvitw_9rbvop_1792511182982_1.jpg",
+        "data/images/f_mvguvitw_9rbvop_1792511185211_2.jpg"
+      ]
+    },
+    {
       "id": "f_mumzafnr_46vypd",
       "inventoryId": "TR-002",
       "createdAt": "2026-09-29T17:56:49.482Z",
